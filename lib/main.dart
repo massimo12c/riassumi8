@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 void main() {
   runApp(const RiassumiApp());
@@ -16,8 +19,8 @@ class RiassumiApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Riassumi8',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF7EEDB), // cappuccino chiaro
-        primaryColor: const Color(0xFF81D4FA), // celeste chiaro
+        scaffoldBackgroundColor: const Color(0xFFF7EEDB),
+        primaryColor: const Color(0xFF81D4FA),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF81D4FA),
           foregroundColor: Colors.white,
@@ -25,7 +28,7 @@ class RiassumiApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF81D4FA), // celeste chiaro
+            backgroundColor: const Color(0xFF81D4FA),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -58,7 +61,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> cercaWikipedia(String query) async {
     if (query.trim().isEmpty) return;
 
-    // 🔥 Rende la ricerca compatibile con MAIUSCOLO e minuscolo
     final url =
         "https://it.wikipedia.org/api/rest_v1/page/summary/${Uri.encodeComponent(query.toLowerCase())}";
 
@@ -105,6 +107,81 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // 📤 CONDIVIDI
+  void condividi() {
+    final link = "https://massimo12c.github.io/riassumi8/";
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Condividi"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: link));
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.copy),
+                label: const Text("Copia link"),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => apriLink("https://wa.me/?text=$link"),
+                icon: const Icon(Icons.chat),
+                label: const Text("WhatsApp"),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => apriLink("https://t.me/share/url?url=$link"),
+                icon: const Icon(Icons.send),
+                label: const Text("Telegram"),
+              ),
+              ElevatedButton.icon(
+                onPressed: () =>
+                    apriLink("mailto:?subject=Riassumi8&body=$link"),
+                icon: const Icon(Icons.email),
+                label: const Text("Email"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 🖨️ STAMPA PDF
+  void stampaPDF() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(titolo,
+                  style: pw.TextStyle(
+                      fontSize: 28, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text(descrizione, style: pw.TextStyle(fontSize: 16)),
+              pw.SizedBox(height: 20),
+              pw.Text("Approfondimento:",
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Text(approfondimento, style: pw.TextStyle(fontSize: 16)),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (format) async => pdf.save(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,7 +196,6 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // CARD APPROFONDIMENTO
                     Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -172,8 +248,6 @@ class _HomePageState extends State<HomePage> {
                               style: const TextStyle(fontSize: 16),
                             ),
                             const SizedBox(height: 20),
-
-                            // 🔵 BOTTONE SALVA (CELESTE)
                             ElevatedButton.icon(
                               onPressed: salvaRicerca,
                               icon: const Icon(Icons.save),
@@ -186,10 +260,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
-                    // 🔵 BOTTONE INDIETRO (CELESTE)
                     ElevatedButton.icon(
                       onPressed: vaiIndietro,
                       icon: const Icon(Icons.arrow_back),
@@ -221,8 +292,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      // 🔵 FRECCIA CERCA (CELESTE)
                       ElevatedButton(
                         onPressed: () => cercaWikipedia(controller.text),
                         child: const Icon(Icons.arrow_forward),
@@ -232,9 +301,7 @@ class _HomePageState extends State<HomePage> {
                       )
                     ],
                   ),
-
                   const SizedBox(height: 20),
-
                   if (ricercheSalvate.isNotEmpty)
                     Expanded(
                       child: Column(
@@ -288,15 +355,11 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-
                   const SizedBox(height: 20),
-
-                  // PULSANTI GOOGLE / YOUTUBE / CHATGPT
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
                     children: [
-                      // GOOGLE
                       ElevatedButton.icon(
                         onPressed: () => apriLink(
                             "https://www.google.com/search?q=${controller.text}"),
@@ -305,15 +368,8 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(fontSize: 20)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF5C6BC0),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 18, horizontal: 25),
                         ),
                       ),
-
-                      // YOUTUBE
                       ElevatedButton.icon(
                         onPressed: () => apriLink(
                             "https://www.youtube.com/results?search_query=${controller.text}"),
@@ -322,15 +378,8 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(fontSize: 20)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFE57373),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 18, horizontal: 25),
                         ),
                       ),
-
-                      // CHATGPT
                       ElevatedButton.icon(
                         onPressed: () => apriLink("https://chat.openai.com/"),
                         icon: const Icon(Icons.chat, size: 28),
@@ -338,12 +387,24 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(fontSize: 20)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF81C784),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25)),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 18, horizontal: 25),
                         ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: condividi,
+                        icon: const Icon(Icons.share),
+                        label: const Text("Condividi"),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: stampaPDF,
+                        icon: const Icon(Icons.picture_as_pdf),
+                        label: const Text("Stampa PDF"),
                       ),
                     ],
                   )

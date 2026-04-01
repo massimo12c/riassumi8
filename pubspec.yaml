@@ -1,26 +1,36 @@
 name: riassumi8
-description: App per riassunti da Wikipedia
-publish_to: 'none'
+description: Un'app Flutter per riassumere e approfondire argomenti da Wikipedia.
+publish_to: "none"
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  http: ^0.13.6
-  url_launcher: ^6.1.10
+  cupertino_icons: ^1.0.6
 
-  cupertino_icons: ^1.0.2
+  # HTTP per chiamate API
+  http: ^1.2.0
+
+  # Apertura link (Google, YouTube, ChatGPT)
+  url_launcher: ^6.2.5
+
+  # PDF e stampa
+  pdf: ^3.10.4
+  printing: ^5.11.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^3.0.2
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/
