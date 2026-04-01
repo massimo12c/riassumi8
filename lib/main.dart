@@ -16,9 +16,23 @@ class RiassumiApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Riassumi8',
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-        scaffoldBackgroundColor: const Color(0xFFFFF8E1), // crema chiaro
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: const Color(0xFFF7EEDB), // cappuccino chiaro
+        primaryColor: const Color(0xFF81D4FA), // celeste chiaro
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF81D4FA),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF81D4FA), // celeste chiaro
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          ),
+        ),
       ),
       home: const HomePage(),
     );
@@ -44,8 +58,10 @@ class _HomePageState extends State<HomePage> {
   Future<void> cercaWikipedia(String query) async {
     if (query.trim().isEmpty) return;
 
+    // 🔥 Rende la ricerca compatibile con MAIUSCOLO e minuscolo
     final url =
-        "https://it.wikipedia.org/api/rest_v1/page/summary/${Uri.encodeComponent(query)}";
+        "https://it.wikipedia.org/api/rest_v1/page/summary/${Uri.encodeComponent(query.toLowerCase())}";
+
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -103,12 +119,12 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // CARD APPROFONDIMENTO GRANDE
+                    // CARD APPROFONDIMENTO
                     Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      color: Colors.deepPurple[100],
+                      color: Colors.white,
                       elevation: 6,
                       child: Padding(
                         padding: const EdgeInsets.all(20),
@@ -129,9 +145,10 @@ class _HomePageState extends State<HomePage> {
                             Text(
                               titolo,
                               style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.deepPurple),
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF8D6E63),
+                              ),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 15),
@@ -155,32 +172,30 @@ class _HomePageState extends State<HomePage> {
                               style: const TextStyle(fontSize: 16),
                             ),
                             const SizedBox(height: 20),
+
+                            // 🔵 BOTTONE SALVA (CELESTE)
                             ElevatedButton.icon(
                               onPressed: salvaRicerca,
                               icon: const Icon(Icons.save),
                               label: const Text("Salva"),
                               style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                backgroundColor: Colors.deepPurple,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 18),
+                                backgroundColor: const Color(0xFF81D4FA),
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 20),
+
+                    // 🔵 BOTTONE INDIETRO (CELESTE)
                     ElevatedButton.icon(
                       onPressed: vaiIndietro,
                       icon: const Icon(Icons.arrow_back),
                       label: const Text("Indietro"),
                       style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        backgroundColor: Colors.deepPurple,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF81D4FA),
                       ),
                     )
                   ],
@@ -196,6 +211,8 @@ class _HomePageState extends State<HomePage> {
                           decoration: InputDecoration(
                             hintText: "Scrivi un argomento...",
                             prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -204,19 +221,20 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(width: 10),
+
+                      // 🔵 FRECCIA CERCA (CELESTE)
                       ElevatedButton(
                         onPressed: () => cercaWikipedia(controller.text),
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.all(16),
-                        ),
                         child: const Icon(Icons.arrow_forward),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF81D4FA),
+                        ),
                       )
                     ],
                   ),
+
                   const SizedBox(height: 20),
+
                   if (ricercheSalvate.isNotEmpty)
                     Expanded(
                       child: Column(
@@ -251,7 +269,7 @@ class _HomePageState extends State<HomePage> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
                                     ),
-                                    color: Colors.deepPurple[50],
+                                    color: Colors.white,
                                     margin:
                                         const EdgeInsets.symmetric(vertical: 8),
                                     child: ListTile(
@@ -270,12 +288,15 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
+
                   const SizedBox(height: 20),
-                  // PULSANTI GOOGLE, YOUTUBE, CHATGPT GRANDI
+
+                  // PULSANTI GOOGLE / YOUTUBE / CHATGPT
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
                     children: [
+                      // GOOGLE
                       ElevatedButton.icon(
                         onPressed: () => apriLink(
                             "https://www.google.com/search?q=${controller.text}"),
@@ -283,13 +304,16 @@ class _HomePageState extends State<HomePage> {
                         label: const Text("Google",
                             style: TextStyle(fontSize: 20)),
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5C6BC0),
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25)),
-                          backgroundColor: Colors.blue,
                           padding: const EdgeInsets.symmetric(
                               vertical: 18, horizontal: 25),
                         ),
                       ),
+
+                      // YOUTUBE
                       ElevatedButton.icon(
                         onPressed: () => apriLink(
                             "https://www.youtube.com/results?search_query=${controller.text}"),
@@ -297,22 +321,26 @@ class _HomePageState extends State<HomePage> {
                         label: const Text("YouTube",
                             style: TextStyle(fontSize: 20)),
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE57373),
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25)),
-                          backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(
                               vertical: 18, horizontal: 25),
                         ),
                       ),
+
+                      // CHATGPT
                       ElevatedButton.icon(
                         onPressed: () => apriLink("https://chat.openai.com/"),
                         icon: const Icon(Icons.chat, size: 28),
                         label: const Text("ChatGPT",
                             style: TextStyle(fontSize: 20)),
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF81C784),
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25)),
-                          backgroundColor: Colors.green,
                           padding: const EdgeInsets.symmetric(
                               vertical: 18, horizontal: 25),
                         ),
