@@ -19,22 +19,12 @@ class RiassumiApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Riassumi8',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF7EEDB),
+        scaffoldBackgroundColor: Colors.white,
         primaryColor: const Color(0xFF81D4FA),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF81D4FA),
           foregroundColor: Colors.white,
           elevation: 0,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF81D4FA),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          ),
         ),
       ),
       home: const HomePage(),
@@ -56,7 +46,6 @@ class _HomePageState extends State<HomePage> {
   String approfondimento = "";
   String immagine = "";
   final List<String> ricercheSalvate = [];
-  bool showApprofondimento = false;
 
   Future<void> cercaWikipedia(String query) async {
     if (query.trim().isEmpty) return;
@@ -75,13 +64,11 @@ class _HomePageState extends State<HomePage> {
         approfondimento = data['description'] ??
             data['extract'] ??
             "Nessun approfondimento disponibile";
-        showApprofondimento = true;
       });
     } else {
       setState(() {
         descrizione = "Errore nella ricerca";
         approfondimento = "";
-        showApprofondimento = false;
       });
     }
   }
@@ -101,13 +88,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void vaiIndietro() {
-    setState(() {
-      showApprofondimento = false;
-    });
-  }
-
-  // 📤 CONDIVIDI
   void condividi() {
     final link = "https://massimo12c.github.io/riassumi8/";
 
@@ -150,7 +130,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 🖨️ STAMPA PDF
   void stampaPDF() async {
     final pdf = pw.Document();
 
@@ -160,15 +139,23 @@ class _HomePageState extends State<HomePage> {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(titolo,
-                  style: pw.TextStyle(
-                      fontSize: 28, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                titolo,
+                style: pw.TextStyle(
+                  fontSize: 28,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 20),
               pw.Text(descrizione, style: pw.TextStyle(fontSize: 16)),
               pw.SizedBox(height: 20),
-              pw.Text("Approfondimento:",
-                  style: pw.TextStyle(
-                      fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                "Approfondimento:",
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.Text(approfondimento, style: pw.TextStyle(fontSize: 16)),
             ],
@@ -191,226 +178,305 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: showApprofondimento
-            ? SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      color: Colors.white,
-                      elevation: 6,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (immagine.isNotEmpty)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.network(
-                                  immagine,
-                                  width: double.infinity,
-                                  height: 200,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            const SizedBox(height: 15),
-                            Text(
-                              titolo,
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF8D6E63),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 15),
-                            Text(
-                              descrizione,
-                              textAlign: TextAlign.justify,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 15),
-                            const Divider(),
-                            const SizedBox(height: 10),
-                            const Text(
-                              "Approfondimento:",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              approfondimento,
-                              textAlign: TextAlign.justify,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton.icon(
-                              onPressed: salvaRicerca,
-                              icon: const Icon(Icons.save),
-                              label: const Text("Salva"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF81D4FA),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: vaiIndietro,
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text("Indietro"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF81D4FA),
-                      ),
-                    )
-                  ],
-                ),
-              )
-            : Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: controller,
-                          decoration: InputDecoration(
-                            hintText: "Scrivi un argomento...",
-                            prefixIcon: const Icon(Icons.search),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          onSubmitted: (_) => cercaWikipedia(controller.text),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () => cercaWikipedia(controller.text),
-                        child: const Icon(Icons.arrow_forward),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF81D4FA),
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (ricercheSalvate.isNotEmpty)
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Ricerche Salvate:",
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: ricercheSalvate.length,
-                              itemBuilder: (context, index) {
-                                final item = ricercheSalvate[index];
-                                return Dismissible(
-                                  key: Key(item),
-                                  background: Container(
-                                    color: Colors.red,
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(right: 20),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  direction: DismissDirection.endToStart,
-                                  onDismissed: (_) => setState(
-                                      () => ricercheSalvate.removeAt(index)),
-                                  child: Card(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    color: Colors.white,
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 8),
-                                    child: ListTile(
-                                      contentPadding: const EdgeInsets.all(20),
-                                      title: Text(
-                                        item,
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                      onTap: () => cercaWikipedia(item),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () => apriLink(
-                            "https://www.google.com/search?q=${controller.text}"),
-                        icon: const Icon(Icons.search, size: 28),
-                        label: const Text("Google",
-                            style: TextStyle(fontSize: 20)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5C6BC0),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () => apriLink(
-                            "https://www.youtube.com/results?search_query=${controller.text}"),
-                        icon: const Icon(Icons.video_library, size: 28),
-                        label: const Text("YouTube",
-                            style: TextStyle(fontSize: 20)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE57373),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () => apriLink("https://chat.openai.com/"),
-                        icon: const Icon(Icons.chat, size: 28),
-                        label: const Text("ChatGPT",
-                            style: TextStyle(fontSize: 20)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF81C784),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: condividi,
-                        icon: const Icon(Icons.share),
-                        label: const Text("Condividi"),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: stampaPDF,
-                        icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text("Stampa PDF"),
-                      ),
-                    ],
-                  )
-                ],
-              ),
+        child: _home(),
       ),
+    );
+  }
+
+  // 🔵 HOME PRINCIPALE
+  Widget _home() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // 🔍 BARRA DI RICERCA
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    hintText: "Scrivi un argomento...",
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  onSubmitted: (_) => cercaWikipedia(controller.text),
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () => cercaWikipedia(controller.text),
+                child: const Icon(Icons.arrow_forward),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF81D4FA),
+                  padding: const EdgeInsets.all(18),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
+          // ⭐ CARD APPROFONDISCI GRANDE ⭐
+          if (titolo.isNotEmpty) _cardApprofondisci(),
+
+          const SizedBox(height: 30),
+
+          // 📌 RICERCHE SALVATE
+          if (ricercheSalvate.isNotEmpty) _ricercheSalvate(),
+
+          const SizedBox(height: 20),
+
+          // 🔗 GOOGLE / YOUTUBE / CHATGPT IN STILE “COSA POSSO FARE”
+          _bottoniWeb(),
+
+          const SizedBox(height: 25),
+
+          // 📤 CONDIVIDI + PDF
+          _bottoniFinali(),
+        ],
+      ),
+    );
+  }
+
+  // 🔵 CARD APPROFONDISCI CON IMMAGINE
+  Widget _cardApprofondisci() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (immagine.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.network(
+                immagine,
+                width: double.infinity,
+                height: 220,
+                fit: BoxFit.cover,
+              ),
+            ),
+          const SizedBox(height: 20),
+          Text(
+            titolo,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF8D6E63),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            descrizione + "\n\n" + approfondimento,
+            style: const TextStyle(fontSize: 20, height: 1.5),
+            textAlign: TextAlign.justify,
+          ),
+          const SizedBox(height: 30),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                final url =
+                    "https://it.wikipedia.org/wiki/${Uri.encodeComponent(titolo)}";
+                apriLink(url);
+              },
+              icon: const Icon(Icons.open_in_new, size: 30),
+              label: const Text("Apri su Wikipedia",
+                  style: TextStyle(fontSize: 22)),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 30),
+                backgroundColor: const Color(0xFF81D4FA),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: salvaRicerca,
+              icon: const Icon(Icons.save),
+              label: const Text("Salva"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4FC3F7),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  titolo = "";
+                  descrizione = "";
+                  approfondimento = "";
+                  immagine = "";
+                });
+              },
+              icon: const Icon(Icons.arrow_back),
+              label: const Text("Indietro"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB0BEC5),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔵 RICERCHE SALVATE
+  Widget _ricercheSalvate() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: ricercheSalvate.length,
+      itemBuilder: (context, index) {
+        final item = ricercheSalvate[index];
+        return Dismissible(
+          key: Key(item),
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          direction: DismissDirection.endToStart,
+          onDismissed: (_) => setState(() => ricercheSalvate.removeAt(index)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(20),
+              title: Text(item, style: const TextStyle(fontSize: 20)),
+              onTap: () => cercaWikipedia(item),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // 🔵 CARD STILE “COSA POSSO FARE”
+  Widget _categoriaCard({
+    required Color colore,
+    required IconData icona,
+    required String testo,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: colore,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icona, color: Colors.white, size: 40),
+            const SizedBox(height: 12),
+            Text(
+              testo,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 🔵 GOOGLE / YOUTUBE / CHATGPT IN STILE CARD
+  Widget _bottoniWeb() {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.4,
+      children: [
+        _categoriaCard(
+          colore: const Color(0xFF42A5F5),
+          icona: Icons.search,
+          testo: "Google",
+          onTap: () =>
+              apriLink("https://www.google.com/search?q=${controller.text}"),
+        ),
+        _categoriaCard(
+          colore: const Color(0xFFE53935),
+          icona: Icons.video_library,
+          testo: "YouTube",
+          onTap: () => apriLink(
+              "https://www.youtube.com/results?search_query=${controller.text}"),
+        ),
+        _categoriaCard(
+          colore: const Color(0xFF43A047),
+          icona: Icons.chat,
+          testo: "ChatGPT",
+          onTap: () => apriLink("https://chat.openai.com/"),
+        ),
+      ],
+    );
+  }
+
+  // 🔵 BOTTONI FINALI
+  Widget _bottoniFinali() {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        ElevatedButton.icon(
+          onPressed: condividi,
+          icon: const Icon(Icons.share),
+          label: const Text("Condividi"),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          ),
+        ),
+        ElevatedButton.icon(
+          onPressed: stampaPDF,
+          icon: const Icon(Icons.picture_as_pdf),
+          label: const Text("Stampa PDF"),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          ),
+        ),
+      ],
     );
   }
 }
